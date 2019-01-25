@@ -1,4 +1,8 @@
--r _base.txt
-
-black
+black==18.4a2
+flake8==3.5.0
 nltk==3.4
+Pillow==5.4.1
+NumPy==1.16.0
+Scipy==1.2.0
+matplotlib==3.0.2
+wordcloud==1.5.0
