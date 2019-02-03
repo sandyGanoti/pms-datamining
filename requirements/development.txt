@@ -7,3 +7,5 @@ Scipy==1.2.0
 matplotlib==3.0.2
 wordcloud==1.5.0
 textBlob==0.15.2
+sklearn==0.20.2
+gensim==3.6.0
