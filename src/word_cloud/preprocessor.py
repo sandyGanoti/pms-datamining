@@ -71,7 +71,7 @@ def main():
     # preprocess the new file in order to clean your data and feed them to word_cloud_generator
     Preprocessor.preprocess_and_store_content("../data/train_set.csv", most_repeated_categories)
 
-    fileDesc = open("../data/train_set_preprocessed.csv", "r")
+    fileDesc = open("../../data/train_set_preprocessed.csv", "r")
     data = fileDesc.read();
     WordCloudGenerator.create_word_cloud(data)
 
