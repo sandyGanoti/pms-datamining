@@ -46,6 +46,7 @@ def main():
     # not on vanilla bag - of - words matrix, but on transformed one.One choice is to apply tf - idf transformation.
 
     lemmatizer = nltk.stem.WordNetLemmatizer()
+
     def lem_tokens(tokens):
         return [lemmatizer.lemmatize(token) for token in tokens]
 
@@ -56,26 +57,39 @@ def main():
     def lem_normalize(text):
         return lem_tokens(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))
 
-    def cos_similarity(file_name: str, theta: float=0.7):
+    def cos_similarity(file_name: str, theta: float = 0.7):
         if file_name and not file_name.isspace():
-            new_file_desc = io.open("../../data/duplicatePairs.csv", "w", encoding="utf8")
+            new_file_desc = io.open(
+                "../../data/duplicatePairs.csv", "w", encoding="utf8"
+            )
             stop_words = set(stopwords.words("english")).union(list(string.punctuation))
             tf_idf_vec = TfidfVectorizer()
 
-            data_frame = DataFrame.from_csv(file_name, sep='\t')
+            data_frame = DataFrame.from_csv(file_name, sep="\t")
             number_of_rows = len(data_frame.index)
 
             for i in range(number_of_rows):
                 id0 = data_frame.iloc[i][0]
 
                 document0 = data_frame.iloc[i][2]
-                document0 = ' '.join([word for word in word_tokenize(document0) if
-                                      word.lower() not in stop_words and not word.isdigit()])
-                for j in range(i+1, number_of_rows):
+                document0 = " ".join(
+                    [
+                        word
+                        for word in word_tokenize(document0)
+                        if word.lower() not in stop_words and not word.isdigit()
+                    ]
+                )
+                for j in range(i + 1, number_of_rows):
                     id1 = data_frame.iloc[j][0]
 
                     document1 = data_frame.iloc[j][2]
-                    document1 = ' '.join([word for word in word_tokenize(document1) if word.lower() not in stop_words and not word.isdigit()])
+                    document1 = " ".join(
+                        [
+                            word
+                            for word in word_tokenize(document1)
+                            if word.lower() not in stop_words and not word.isdigit()
+                        ]
+                    )
 
                     tf_idf = tf_idf_vec.fit_transform(
                         [document0, document1]
@@ -88,15 +102,21 @@ def main():
                             # avoid measurement for each doc to itself as obviously the similarity will be 1.0
                             if ii == jj:
                                 continue
+
                             if cos_similarity[ii][jj] > theta:
-                            # if cos_similarity[ii][jj] < theta:
-                                result = "{}{}{}".format(str(id0) + "\t", str(id1) + "\t", str(cos_similarity[ii][jj]))
+                                # if cos_similarity[ii][jj] < theta:
+                                result = "{}{}{}".format(
+                                    str(id0) + "\t",
+                                    str(id1) + "\t",
+                                    str(cos_similarity[ii][jj]),
+                                )
                                 # print(result)
                                 new_file_desc.write(result + "\n")
 
             new_file_desc.close()
 
     cos_similarity("../../data/train_set.csv", theta=0.3)
+
 
 if __name__ == "__main__":
     main()

@@ -16,30 +16,36 @@ class Preprocessor:
 
       :param str data: the data will be used for generating the word cloud
       """
+
     @staticmethod
-    def _spelling_correction(line: str)-> str:
-        return ' '.join([str(TextBlob(word).correct()) for word in line.split()])
+    def _spelling_correction(line: str) -> str:
+        return " ".join([str(TextBlob(word).correct()) for word in line.split()])
 
     # removal of suffices, like “ing”, “ly”, “s”--Dont use it
     # Lemmatization is a more effective option than stemming because it converts
     # the word into its root word, rather than just stripping the suffices.
     # It makes use of the vocabulary and does a morphological analysis to obtain the root word.
     # Therefore, we usually prefer using lemmatization over stemming.
+
     @staticmethod
     def _remove_stemming(line: str):
         stemming = PorterStemmer()
 
-        return ' '.join([stemming.stem(word) for word in line.split()])
+        return " ".join([stemming.stem(word) for word in line.split()])
 
     @staticmethod
-    def _lemmatization(line: str)-> str:
-        return ' '.join([Word(word).lemmatize() for word in line.split()])
+    def _lemmatization(line: str) -> str:
+        return " ".join([Word(word).lemmatize() for word in line.split()])
 
     @staticmethod
-    def preprocess_and_store_content(file_name: str, most_repeated_categories: Set[str]):
+    def preprocess_and_store_content(
+        file_name: str, most_repeated_categories: Set[str]
+    ):
         stop_words = set(stopwords.words("english")).union(list(string.punctuation))
 
-        new_file_desc = io.open(file_name.replace(".csv", "") + "_preprocessed.csv", "w", encoding="utf8")
+        new_file_desc = io.open(
+            file_name.replace(".csv", "") + "_preprocessed.csv", "w", encoding="utf8"
+        )
 
         if file_name and not file_name.isspace():
             with open(file_name) as tsv:
@@ -48,7 +54,13 @@ class Preprocessor:
                         continue
 
                     line = line[3]
-                    line = ' '.join([word for word in word_tokenize(line) if word.lower() not in stop_words and not word.isdigit()])
+                    line = " ".join(
+                        [
+                            word
+                            for word in word_tokenize(line)
+                            if word.lower() not in stop_words and not word.isdigit()
+                        ]
+                    )
                     line = Preprocessor._lemmatization(line)
                     # line = Preprocessor.spelling_correction(line)
                     line = Preprocessor._remove_stemming(line)
@@ -69,12 +81,51 @@ def main():
 
     # store content of the x most repeated categories on a new file
     # preprocess the new file in order to clean your data and feed them to word_cloud_generator
-    Preprocessor.preprocess_and_store_content("../data/train_set.csv", most_repeated_categories)
+    Preprocessor.preprocess_and_store_content(
+        "../data/train_set.csv", most_repeated_categories
+    )
 
     fileDesc = open("../../data/train_set_preprocessed.csv", "r")
-    data = fileDesc.read();
+    data = fileDesc.read()
     WordCloudGenerator.create_word_cloud(data)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
+
+# For
+# the
+# stemming
+# part, we
+# 'll start with lemmatization, this will stem words like leaves to leaf. Afterwards, we'
+# ll
+# apply
+# the
+# porterstemmer
+# which in turn
+# will
+# complete
+# the
+# stemming
+# by
+# converting
+# words
+# like
+# running
+# to
+# run.
+#
+#
+# def stem_words(df):
+#     lemm = nltk.stem.WordNetLemmatizer()
+#     df['lemmatized_text'] = list(map(lambda sentence:
+#                                      list(map(lemm.lemmatize, sentence)),
+#                                      df.stopwords_removed))
+#
+#     p_stemmer = nltk.stem.porter.PorterStemmer()
+#     df['stemmed_text'] = list(map(lambda sentence:
+#                                   list(map(p_stemmer.stem, sentence)),
+#                                   df.lemmatized_text))
+#
+#
+# stem_words(train_data)
