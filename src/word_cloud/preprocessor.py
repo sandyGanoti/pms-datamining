@@ -2,72 +2,41 @@ from typing import Set
 from nltk.corpus import stopwords
 import io
 import string
-from textblob import TextBlob
-from nltk.stem import PorterStemmer
-from textblob import Word
 import csv
 from nltk import word_tokenize
 from .repeated_categories import Util
 from .word_cloud_creator import WordCloudGenerator
+from src.util import Preprocessor
 
 
-class Preprocessor:
-    """ Defines some actions in order to pre process data
+def preprocess_and_store_content(file_name: str, most_repeated_categories: Set[str]):
+    stop_words = set(stopwords.words("english")).union(list(string.punctuation))
 
-      :param str data: the data will be used for generating the word cloud
-      """
+    new_file_desc = io.open(
+        file_name.replace(".csv", "") + "_preprocessed.csv", "w", encoding="utf8"
+    )
 
-    @staticmethod
-    def _spelling_correction(line: str) -> str:
-        return " ".join([str(TextBlob(word).correct()) for word in line.split()])
+    if file_name and not file_name.isspace():
+        with open(file_name) as tsv:
+            for line in csv.reader(tsv, dialect="excel-tab"):
+                if line[4] not in most_repeated_categories:
+                    continue
 
-    # removal of suffices, like “ing”, “ly”, “s”--Dont use it
-    # Lemmatization is a more effective option than stemming because it converts
-    # the word into its root word, rather than just stripping the suffices.
-    # It makes use of the vocabulary and does a morphological analysis to obtain the root word.
-    # Therefore, we usually prefer using lemmatization over stemming.
+                line = line[3]
+                line = " ".join(
+                    [
+                        word
+                        for word in word_tokenize(line)
+                        if word.lower() not in stop_words and not word.isdigit()
+                    ]
+                )
+                line = Preprocessor.lemmatization(line)
+                # line = Preprocessor.spelling_correction(line)
+                line = Preprocessor.remove_stemming(line)
 
-    @staticmethod
-    def _remove_stemming(line: str):
-        stemming = PorterStemmer()
+                new_file_desc.write(line + "\n")
 
-        return " ".join([stemming.stem(word) for word in line.split()])
-
-    @staticmethod
-    def _lemmatization(line: str) -> str:
-        return " ".join([Word(word).lemmatize() for word in line.split()])
-
-    @staticmethod
-    def preprocess_and_store_content(
-        file_name: str, most_repeated_categories: Set[str]
-    ):
-        stop_words = set(stopwords.words("english")).union(list(string.punctuation))
-
-        new_file_desc = io.open(
-            file_name.replace(".csv", "") + "_preprocessed.csv", "w", encoding="utf8"
-        )
-
-        if file_name and not file_name.isspace():
-            with open(file_name) as tsv:
-                for line in csv.reader(tsv, dialect="excel-tab"):
-                    if line[4] not in most_repeated_categories:
-                        continue
-
-                    line = line[3]
-                    line = " ".join(
-                        [
-                            word
-                            for word in word_tokenize(line)
-                            if word.lower() not in stop_words and not word.isdigit()
-                        ]
-                    )
-                    line = Preprocessor._lemmatization(line)
-                    # line = Preprocessor.spelling_correction(line)
-                    line = Preprocessor._remove_stemming(line)
-
-                    new_file_desc.write(line + "\n")
-
-        new_file_desc.close()
+    new_file_desc.close()
 
 
 def main():
