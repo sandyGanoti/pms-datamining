@@ -11,20 +11,32 @@ class Util:
 
       :return Set[str] the names of the top categories as is specified by index
       """
+
     @staticmethod
-    def most_repeated_categories(index, file_name)->Set[str]:
+    def most_repeated_categories(index, file_name) -> Set[str]:
         if file_name and not file_name.isspace():
             with open(file_name) as tsv:
-                for column in zip(*[line for line in csv.reader(tsv, dialect="excel-tab")]):
-                    if column[0] == 'Category':
+                for column in zip(
+                    *[line for line in csv.reader(tsv, dialect="excel-tab")]
+                ):
+                    if column[0] == "Category":
                         categories_dict = dict()
                         for item in column:
                             if item == "Category":
                                 continue
+
                             occurrence = categories_dict.get(item, 0)
                             categories_dict[item] = occurrence + 1
 
-                        x_most_repeated_categories = dict(sorted(categories_dict.items(), key=operator.itemgetter(1), reverse=True)[:index])
+                        x_most_repeated_categories = dict(
+                            sorted(
+                                categories_dict.items(),
+                                key=operator.itemgetter(1),
+                                reverse=True,
+                            )[
+                                :index
+                            ]
+                        )
                         print(x_most_repeated_categories)
 
                         return set(x_most_repeated_categories.keys())
